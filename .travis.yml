@@ -5,4 +5,4 @@ after_script:
 - "./node_modules/gulp/bin/gulp.js coveralls"
 env:
   global:
-    secure: I/J0LmkDlm+B2RJ/5RTNUeZF5/k5ebLrC+xFRU7rE+gOKoAMtsaL/vdAu76TmNCNo8OTY2Ph9H3gb0rh4qw5lwSQ6U4V/V0IXB24Ox1jdYLFplcSpBYSjhwhJmNvd5GGkLvQd8VIE0v4LuSEIrlPMWtLBXoUhw1NJwcbqm5ce4g=
+    secure: E/eJupB4KcTiBxy2loe8e/UKexlISitqJRPMNQm2HKVsSoLsTULGOgciZGc/w6qVR2RMEEuqJA/NpaMv425PBgKr1H7uwg+ReMfHdv6TSQOakmwBBTgGtqS8qaQ5d4KiWcgzP6jDFHEElLKss7B5LCUMSi1VneZ9mOLPfXQ49qQ=
