@@ -65,6 +65,7 @@ capture of errors and response times.
 
 **Returns**: `elasticsearchLoggerMiddleware` - express middleware  
 **Example**  
+```javascript
 var express = require('express');
 var elasticsearchLogger = require('express-elasticsearch-logger');
 
@@ -74,6 +75,7 @@ app
   .use(elasticsearchLogger.middleware({
     host: 'http://localhost:9200'
   });
+```
 
 ## Contributing
 
