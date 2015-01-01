@@ -56,7 +56,7 @@
   },
   "keywords": [
     "express",
-    "elasticsearch"
+    "elasticsearch",
     "log",
     "logger",
     "request"
