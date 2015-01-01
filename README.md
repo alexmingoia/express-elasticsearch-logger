@@ -2,8 +2,6 @@
 
 > Log Express app requests to ElasticSearch.
 
-Compatible with Express 3.x and 4.x
-
 ## Installation
 
 Install using [npm](https://www.npmjs.org/):
@@ -63,8 +61,8 @@ handler middleware.
   - \[index\] `String` - elasticsearch index (default: log_YEAR_MONTH)  
   - \[type\] `String` - elasticsearch document type (default: request)  
   - whitelist `Object`  
-  - request `Array.<String>` - request properties to log  
-  - response `Array.<String>` - response properties to log  
+    - request `Array.<String>` - request properties to log  
+    - response `Array.<String>` - response properties to log  
 - \[client\] `elasticsearch.Client` - elasticsearch client  
 
 **Returns**: `elasticsearchLoggerMiddleware` - express middleware  
@@ -90,7 +88,8 @@ app
 Error handler middleware exposes error to `Response#end`
 
 This middleware is used in combination with
-[module:logger.requestHandler](module:logger.requestHandler) to capture request errors.
+[requestHandler](#module_express-elasticsearch-logger.requestHandler) to capture request
+errors.
 
 **Params**
 
