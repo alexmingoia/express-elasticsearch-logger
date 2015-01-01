@@ -15,11 +15,11 @@ npm install express-elasticsearch-logger
 **Members**
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
-  * [express-elasticsearch-logger.document](#module_express-elasticsearch-logger.document)
-  * [express-elasticsearch-logger.middleware(config, [client])](#module_express-elasticsearch-logger.middleware)
+  * [logger.document](#module_express-elasticsearch-logger.document)
+  * [logger.middleware(config, [client])](#module_express-elasticsearch-logger.middleware)
 
 <a name="module_express-elasticsearch-logger.document"></a>
-##express-elasticsearch-logger.document
+##logger.document
 Document indexed with ElasticSearch. `request` and `response` properties
 are included if they are whitelisted by `config.whitelist`.
 
@@ -47,7 +47,7 @@ are included if they are whitelisted by `config.whitelist`.
 
 **Type**: `Object`  
 <a name="module_express-elasticsearch-logger.middleware"></a>
-##express-elasticsearch-logger.middleware(config, [client])
+##logger.middleware(config, [client])
 Returns Express middleware configured according to given `options`.
 
 Middleware must be mounted before all other middleware to ensure accurate
