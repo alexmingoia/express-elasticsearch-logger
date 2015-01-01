@@ -2,6 +2,8 @@
 
 > Log Express app requests to ElasticSearch.
 
+Compatible with Express 3.x and 4.x
+
 ## Installation
 
 Install using [npm](https://www.npmjs.org/):
@@ -16,7 +18,8 @@ npm install express-elasticsearch-logger
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
   * [logger.document](#module_express-elasticsearch-logger.document)
-  * [logger.middleware(config, [client])](#module_express-elasticsearch-logger.middleware)
+  * [logger.requestHandler(config, [client])](#module_express-elasticsearch-logger.requestHandler)
+  * [logger.errorHandler(err, req, res, next)](#module_express-elasticsearch-logger.errorHandler)
 
 <a name="module_express-elasticsearch-logger.document"></a>
 ##logger.document
@@ -46,12 +49,13 @@ are included if they are whitelisted by `config.whitelist`.
 - timestamp `String` - ISO time of request  
 
 **Type**: `Object`  
-<a name="module_express-elasticsearch-logger.middleware"></a>
-##logger.middleware(config, [client])
+<a name="module_express-elasticsearch-logger.requestHandler"></a>
+##logger.requestHandler(config, [client])
 Returns Express middleware configured according to given `options`.
 
 Middleware must be mounted before all other middleware to ensure accurate
-capture of errors and response times.
+capture of requests. The error handler must be mounted before other error
+handler middleware.
 
 **Params**
 
@@ -59,8 +63,8 @@ capture of errors and response times.
   - \[index\] `String` - elasticsearch index (default: log_YEAR_MONTH)  
   - \[type\] `String` - elasticsearch document type (default: request)  
   - whitelist `Object`  
-    - request `Array.<String>` - request properties to log  
-    - response `Array.<String>` - response properties to log  
+  - request `Array.<String>` - request properties to log  
+  - response `Array.<String>` - response properties to log  
 - \[client\] `elasticsearch.Client` - elasticsearch client  
 
 **Returns**: `elasticsearchLoggerMiddleware` - express middleware  
@@ -72,10 +76,28 @@ var elasticsearchLogger = require('express-elasticsearch-logger');
 var app = express();
 
 app
-  .use(elasticsearchLogger.middleware({
+  .use(elasticsearchLogger.requestHandler({
     host: 'http://localhost:9200'
-  });
+  })
+  .get('/', function (req, res, next) {
+    res.sendStatus(204);
+  })
+  .use(elasticsearchLogger.errorHandler);
 ```
+
+<a name="module_express-elasticsearch-logger.errorHandler"></a>
+##logger.errorHandler(err, req, res, next)
+Error handler middleware exposes error to `Response#end`
+
+This middleware is used in combination with
+[module:logger.requestHandler](module:logger.requestHandler) to capture request errors.
+
+**Params**
+
+- err `Error`  
+- req `express.Request`  
+- res `express.Response`  
+- next `express.Request.next`  
 
 ## Contributing
 

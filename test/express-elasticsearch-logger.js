@@ -17,7 +17,7 @@ describe('express-elasticsearch-logger module', function () {
 
   var client = {
     index: function (params, cb) {
-      expect(params.body).to.have.keys([
+      expect(params.body).to.contain.keys([
         'env',
         'duration',
         'request',
@@ -35,7 +35,7 @@ describe('express-elasticsearch-logger module', function () {
 
   describe('.middleware', function () {
     it('returns express logging middleware', function () {
-      var middleware = lib.middleware();
+      var middleware = lib.requestHandler();
 
       expect(middleware).to.be.a('function');
     });
@@ -43,11 +43,37 @@ describe('express-elasticsearch-logger module', function () {
     it('logs requests', function (done) {
       var app = express();
 
-      app.use(lib.middleware(config, client));
+      app
+        .use(lib.requestHandler(config, client))
+        .get('/test', function (req, res, next) {
+          res.sendStatus(200);
+        });
 
       request(app)
         .get('/test')
         .query({ test: 'it' })
+        .expect(200)
+        .end(done);
+    });
+
+    it('logs errors within requests', function (done) {
+      var app = express();
+
+      app
+        .use(lib.requestHandler(config, client))
+        .get('/test', function (req, res, next) {
+          next(new Error('test'));
+        })
+        .use(lib.errorHandler)
+        .use(function (err, req, res, next) {
+          expect(err).to.have.property('message', 'test');
+          res.sendStatus(555);
+        });
+
+      request(app)
+        .get('/test')
+        .query({ test: 'it' })
+        .expect(555)
         .end(done);
     });
   });
