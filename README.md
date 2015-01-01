@@ -69,18 +69,18 @@ handler middleware.
 **Example**  
 ```javascript
 var express = require('express');
-var elasticsearchLogger = require('express-elasticsearch-logger');
+var logger = require('express-elasticsearch-logger');
 
 var app = express();
 
 app
-  .use(elasticsearchLogger.requestHandler({
+  .use(logger.requestHandler({
     host: 'http://localhost:9200'
   })
   .get('/', function (req, res, next) {
     res.sendStatus(204);
   })
-  .use(elasticsearchLogger.errorHandler);
+  .use(logger.errorHandler);
 ```
 
 <a name="module_express-elasticsearch-logger.errorHandler"></a>
