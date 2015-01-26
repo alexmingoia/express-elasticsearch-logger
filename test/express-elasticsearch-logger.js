@@ -33,7 +33,7 @@ describe('express-elasticsearch-logger module', function () {
     }
   };
 
-  describe('.middleware', function () {
+  describe('.requestHandler()', function () {
     it('returns express logging middleware', function () {
       var middleware = lib.requestHandler();
 
@@ -56,6 +56,9 @@ describe('express-elasticsearch-logger module', function () {
         .end(done);
     });
 
+  });
+
+  describe('.errorHandler()', function () {
     it('logs errors within requests', function (done) {
       var app = express();
 

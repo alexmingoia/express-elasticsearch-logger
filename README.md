@@ -61,8 +61,9 @@ handler middleware.
   - \[index\] `String` - elasticsearch index (default: log_YEAR_MONTH)  
   - \[type\] `String` - elasticsearch document type (default: request)  
   - whitelist `Object`  
-    - request `Array.<String>` - request properties to log  
-    - response `Array.<String>` - response properties to log  
+  - request `Array.<String>` - request properties to log  
+  - response `Array.<String>` - response properties to log  
+  - censor `Array.<String>` - list of request body properties to censor  
 - \[client\] `elasticsearch.Client` - elasticsearch client  
 
 **Returns**: `elasticsearchLoggerMiddleware` - express middleware  
