@@ -34,6 +34,7 @@ are included if they are whitelisted by `config.whitelist`.
   - request.headers `Object`  
   - request.method `String`  
   - request.originalUrl `String`  
+  - request.route.path `String`  
   - request.path `String`  
   - request.query `Object`  
 - response `Object`  
