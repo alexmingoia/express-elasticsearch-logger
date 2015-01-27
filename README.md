@@ -15,12 +15,12 @@ npm install express-elasticsearch-logger
 **Members**
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
-  * [logger.document](#module_express-elasticsearch-logger.document)
+  * [logger.request](#module_express-elasticsearch-logger.request)
   * [logger.requestHandler(config, [client])](#module_express-elasticsearch-logger.requestHandler)
   * [logger.errorHandler(err, req, res, next)](#module_express-elasticsearch-logger.errorHandler)
 
-<a name="module_express-elasticsearch-logger.document"></a>
-##logger.document
+<a name="module_express-elasticsearch-logger.request"></a>
+##logger.request
 Document indexed with ElasticSearch. `request` and `response` properties
 are included if they are whitelisted by `config.whitelist`.
 
@@ -44,7 +44,7 @@ are included if they are whitelisted by `config.whitelist`.
   - os.loadavg `Array.<Number>` - Array of 5, 10, and 15 min averages  
 - process `Object`  
   - process.memoryUsage `Number` - process memory in bytes  
-- timestamp `String` - ISO time of request  
+- @timestamp `String` - ISO time of request  
 
 **Type**: `Object`  
 <a name="module_express-elasticsearch-logger.requestHandler"></a>
@@ -59,10 +59,10 @@ handler middleware.
 
 - config `Object` - elasticsearch configuration  
   - \[index\] `String` - elasticsearch index (default: log_YEAR_MONTH)  
-  - \[type\] `String` - elasticsearch document type (default: request)  
+  - \[type\] `String` - elasticsearch request type (default: request)  
   - whitelist `Object`  
-  - request `Array.<String>` - request properties to log  
-  - response `Array.<String>` - response properties to log  
+    - request `Array.<String>` - request properties to log  
+    - response `Array.<String>` - response properties to log  
   - censor `Array.<String>` - list of request body properties to censor  
 - \[client\] `elasticsearch.Client` - elasticsearch client  
 
