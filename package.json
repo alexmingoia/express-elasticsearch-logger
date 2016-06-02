@@ -33,7 +33,6 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "defaults": "^1.0.0",
     "elasticsearch": "^11.0.1"
   },
   "devDependencies": {
