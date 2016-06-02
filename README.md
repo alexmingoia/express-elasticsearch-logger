@@ -78,11 +78,12 @@ var app = express();
 app
   .use(logger.requestHandler({
     host: 'http://localhost:9200'
-  })
+  }))
   .get('/', function (req, res, next) {
     res.sendStatus(204);
   })
-  .use(logger.errorHandler);
+  .use(logger.errorHandler)
+  .listen(8888);
 ```
 
 <a name="module_express-elasticsearch-logger.errorHandler"></a>
