@@ -3,7 +3,6 @@
 var expect = require('chai').expect;
 var lib = process.env.JSCOV ? require('../lib-cov/express-elasticsearch-logger') : require('../lib/express-elasticsearch-logger');
 var express = require('express');
-var request = require('supertest');
 var helper = require('../lib/helper');
 
 var cencorString = '**CENSORED**';
