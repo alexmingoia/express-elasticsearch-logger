@@ -64,7 +64,7 @@ handler middleware.
   - whitelist `Object`  
     - request `Array.<String>` - request properties to log  
     - response `Array.<String>` - response properties to log  
-  - censor `Array.<String>` - list of request body properties to censor  
+  - censor `Array.<String>` - list of request body properties to censor, this config will deep censor your data. for example, if you input `'data.deepdata'`, your property `deepdata` inside `data` object will be marked as **CENSORED**
 - \[client\] `elasticsearch.Client` - elasticsearch client  
 
 **Returns**: `elasticsearchLoggerMiddleware` - express middleware  
