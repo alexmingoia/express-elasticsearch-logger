@@ -1,8 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect;
-var lib = process.env.JSCOV ? require('../lib-cov/express-elasticsearch-logger') : require('../lib/express-elasticsearch-logger');
-var express = require('express');
 var helper = require('../lib/helper');
 
 var cencorString = '**CENSORED**';
@@ -57,6 +55,6 @@ describe('helper module', function () {
           {z: {zz: {zzz: cencorString}}, b: cencorString, c: {y: cencorString, x: 'remain cool'}}
         );
       });
-    })
+    });
   });
 });
