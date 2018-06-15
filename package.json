@@ -1,7 +1,7 @@
 {
   "name": "@rentspree/express-elasticsearch-logger",
   "description": "Log Express app requests to ElasticSearch.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "homepage": "https://github.com/rentspree/express-elasticsearch-logger",
   "author": {
     "name": "Alex Mingoia",
@@ -65,5 +65,8 @@
     "log",
     "logger",
     "request"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
