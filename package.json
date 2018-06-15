@@ -1,18 +1,22 @@
 {
-  "name": "express-elasticsearch-logger",
+  "name": "@rentspree/express-elasticsearch-logger",
   "description": "Log Express app requests to ElasticSearch.",
   "version": "2.1.0",
-  "homepage": "https://github.com/alexmingoia/express-elasticsearch-logger",
+  "homepage": "https://github.com/rentspree/express-elasticsearch-logger",
   "author": {
     "name": "Alex Mingoia",
     "email": "talk@alexmingoia.com"
   },
+  "contributors": [{
+    "name": "Potsawee Vechpanich",
+    "email": "potsawee@rentspree.com"
+  }],
   "repository": {
     "type": "git",
-    "url": "git://github.com/alexmingoia/express-elasticsearch-logger.git"
+    "url": "git://github.com/rentspree/express-elasticsearch-logger.git"
   },
   "bugs": {
-    "url": "https://github.com/alexmingoia/express-elasticsearch-logger/issues"
+    "url": "https://github.com/rentspree/express-elasticsearch-logger/issues"
   },
   "licenses": [
     {
@@ -26,8 +30,8 @@
     "lib"
   ],
   "engines": {
-    "node": ">= 0.10.26",
-    "npm": ">=1.4.3"
+    "node": ">= 8.9.4",
+    "npm": ">=5.6.0"
   },
   "scripts": {
     "test": "gulp test"

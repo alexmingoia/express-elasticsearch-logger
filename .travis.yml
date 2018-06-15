@@ -1,8 +1,10 @@
 language: node_js
 node_js:
-- 0.1
-after_script:
-- "./node_modules/gulp/bin/gulp.js coveralls"
-env:
-  global:
-    secure: E/eJupB4KcTiBxy2loe8e/UKexlISitqJRPMNQm2HKVsSoLsTULGOgciZGc/w6qVR2RMEEuqJA/NpaMv425PBgKr1H7uwg+ReMfHdv6TSQOakmwBBTgGtqS8qaQ5d4KiWcgzP6jDFHEElLKss7B5LCUMSi1VneZ9mOLPfXQ49qQ=
+- 8.9.4
+deploy:
+  provider: npm
+  email: junrai82@gmail.com
+  on:
+    tags: true
+  api_key:
+    secure: pOFzt6sFstOFBSBVb8Q9vo9xfA9PbD7kxu/9A/4DiU1oMPZWoQ84iLy8usYqIGX8c5X8l7PUJzR+AQjEkYhLuIX4YBATrHlfVY/g/NXDZCM6l3CsPqCy4wvrTeimtuiDjnTvrcFy+s/SyIQKtePggwrPhHgQ+wAO4ANMOBU2mYXko2otq1U+6qiZ9P5qE8MLFvq3fA9f3zut0P70jpZ+aFTM1ZlEEoKDNB04khvwhPoew7TRXI0HKfNOamPwMpQKsVs1/4QYJDg3XTKyYqjPI9iAeBY7NtwY0W+rO913tQe9qlsAOJAke1DfRz76u8OdzGcUK6DKlMoEYhTdiWXlNgqzvhzTtlszu/wBLlPDn8T5tix6XYglSvJ1D2/3jW8Bq5FE5qt9BVWHJzSy0ifJWpSd283AWDgs0QEPSNWgyuUBKTgUgxjykFIGSHXPYnMlTLWFEZzUiyXgRxw/u8hp9ZOdvhLk5kU7b2TsjGTVnp2z3K4wZpHB3ZDx50inReARJcsrs4OWrvpnA2/LjCTjIlT9T+sDks8A9acWPUuHeUw2U0u6u5DpnYRxEjzBNo8Cnp/JRfNhqM0IzqVJm/auXoj6FXAQEzQsBkWUiFFCTElbsXnpqdVETfghf71kKquxuWLLvluf2QSEWMXirIe/NsYa4lIrU+poscFvMJjnwH4=

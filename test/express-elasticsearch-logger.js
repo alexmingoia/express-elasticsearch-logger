@@ -80,4 +80,21 @@ describe('express-elasticsearch-logger module', function () {
         .end(done);
     });
   });
+
+  describe('.skipLog()', function () {
+    it('should add skipLog to req', function (done) {
+      var app = express();
+      app
+        .use(lib.skipLog)
+        .get('/test', function (req, res, next) {
+          expect(req).to.have.property('skipLog')
+          res.sendStatus(200);
+        });
+
+      request(app)
+        .get('/test')
+        .expect(200)
+        .end(done)
+    })
+  });
 });
