@@ -7,7 +7,7 @@
 Install using [npm](https://www.npmjs.org/):
 
 ```sh
-npm install express-elasticsearch-logger
+npm install @rentspree/express-elasticsearch-logger
 ```
 
 ## API Reference
