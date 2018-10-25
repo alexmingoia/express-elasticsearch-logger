@@ -9,6 +9,7 @@ var expect = require('chai').expect;
 var lib = process.env.JSCOV ? require('../lib-cov/express-elasticsearch-logger') : require('../lib/express-elasticsearch-logger');
 var express = require('express');
 var request = require('supertest');
+var sinon = require('sinon');
 
 describe('express-elasticsearch-logger module', function () {
   var config = {
@@ -30,6 +31,10 @@ describe('express-elasticsearch-logger module', function () {
       expect(params.body.request).to.have.property('path', '/test');
       expect(params.body.request).to.have.property('originalUrl', '/test?test=it');
       cb();
+    },
+    indices: {
+      exists: function(a, cb){cb()},
+      create: function(a, cb){cb()}
     }
   };
 
@@ -77,6 +82,48 @@ describe('express-elasticsearch-logger module', function () {
         .get('/test')
         .query({ test: 'it' })
         .expect(555)
+        .end(done);
+    });
+  });
+
+  describe("config", function() {
+    it('should be able to config error whitelist', function (done) {
+      const indexFunctionStub = sinon.spy()
+      const clientTest = {
+        index: indexFunctionStub,
+        indices: {
+          exists: function(a, cb){cb()},
+          create: function(a, cb){cb()}
+        }
+      }
+      var app = express();
+      app
+        .use(lib.requestHandler(config, clientTest))
+        .get('/test', function (req, res, next) {
+          const e = new Error('test')
+          e.name = 'this-is-the-error'
+          e.something = 'should-not-see-this'
+          next(e);
+        })
+        .use(lib.errorHandler)
+        .use(function (err, req, res, next) {
+          res.sendStatus(555);
+        });
+
+      request(app)
+        .get('/test')
+        .query({ test: 'it' })
+        .expect(function() {
+          expect(indexFunctionStub.calledOnce).to.be.true
+          const params = indexFunctionStub.firstCall.args[0]
+          expect(params.body).to.contain.keys([
+            'error',
+            'request'
+          ]);
+          expect(params.body.error).to.have.property("name", 'this-is-the-error')
+          expect(params.body.error).to.not.have.property("something")
+
+        })
         .end(done);
     });
   });
