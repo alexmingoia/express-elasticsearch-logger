@@ -356,15 +356,13 @@ describe("elasticsearch index creation", () => {
         body: { mappings },
       } = stubESIndicesCreate.getCalls()[0].args[0]
       mappings.should.be.deep.equal({
-        request: {
-          properties: {
-            ...defaultMapping.properties,
-            request: {
-              properties: {
-                ...defaultMapping.properties.request.properties,
-                my_field: {
-                  type: "text",
-                },
+        properties: {
+          ...defaultMapping.properties,
+          request: {
+            properties: {
+              ...defaultMapping.properties.request.properties,
+              my_field: {
+                type: "text",
               },
             },
           },
@@ -418,15 +416,13 @@ describe("elasticsearch index creation", () => {
         body: { mappings },
       } = stubESIndicesCreate.getCalls()[0].args[0]
       mappings.should.be.deep.equal({
-        request: {
-          properties: {
-            ...defaultMapping.properties,
-            request: {
-              properties: {
-                ...defaultMapping.properties.request.properties,
-                my_field: {
-                  type: "text",
-                },
+        properties: {
+          ...defaultMapping.properties,
+          request: {
+            properties: {
+              ...defaultMapping.properties.request.properties,
+              my_field: {
+                type: "text",
               },
             },
           },
@@ -455,13 +451,11 @@ describe("elasticsearch index creation", () => {
       const client = getClient({
         exists: stub,
       })
-      const { callAgain } = await callServer(config, client)
+      await callServer(config, client)
       stubESIndicesCreate.should.not.be.called
       stubESIndicesPutMapping.should.be.called
       const putMappingConfig = stubESIndicesPutMapping.getCalls()[0].args[0]
       putMappingConfig.should.have.property("index", "log_2020-h2")
-      putMappingConfig.should.have.property("type", "request")
-      putMappingConfig.should.have.property("updateAllTypes", true)
       putMappingConfig.should.have
         .property("body")
         .that.deep.equal(defaultMapping)
