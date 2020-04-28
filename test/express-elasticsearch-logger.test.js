@@ -143,7 +143,8 @@ describe("express-elasticsearch-logger module", function () {
 describe("elasticsearch index creation", () => {
   const stubESIndex = sinon.stub().callsArg(1)
   const stubESIndicesExists = sinon.stub().callsArg(1)
-  const stubESCreate = sinon.stub().callsArg(1)
+  const stubESIndicesCreate = sinon.stub().callsArg(1)
+  const stubESIndicesPutMapping = sinon.stub().callsArg(1)
   const config = {
     host: "http://localhost:9200",
   }
@@ -151,32 +152,37 @@ describe("elasticsearch index creation", () => {
     index: stubESIndex,
     indices: {
       exists: stubESIndicesExists,
-      create: stubESCreate,
+      putMapping: stubESIndicesPutMapping,
+      create: stubESIndicesCreate,
     },
   })
-  const callServer = async (cfg = config, client) => {
+  const callServer = async (cfg = config) => {
     const app = express()
-    app
-      .use(requestHandler(cfg, client || getClient()))
-      .get("/test", function (req, res) {
-        res.sendStatus(200)
-      })
-    await request(app).get("/test").query({ test: "it" }).expect(200)
+    app.use(requestHandler(cfg, getClient())).get("/test", function (req, res) {
+      res.sendStatus(200)
+    })
+    const rq = request(app)
+    await rq.get("/test").query({ test: "it" }).expect(200)
+    return {
+      callAgain: () => rq.get("/test").query({ test: "it" }).expect(200),
+    }
   }
   let clock
   const date = new Date("2020-09-30T23:59:59.999Z")
   before(() => {
     clock = sinon.useFakeTimers(date)
   })
-  afterEach(() => {
-    stubESIndex.resetHistory()
-    stubESIndicesExists.resetHistory()
-    clock.setSystemTime(date)
-  })
+
   after(() => {
     clock.restore()
   })
   describe("default index name", () => {
+    beforeEach(() => {
+      stubESIndex.resetHistory()
+    })
+    afterEach(() => {
+      clock.setSystemTime(date)
+    })
     it("should create the correct index pattern that default to half year pattern", async () => {
       await callServer()
       stubESIndex.should.be.called
@@ -185,6 +191,12 @@ describe("elasticsearch index creation", () => {
     })
   })
   describe("configurable index name", () => {
+    beforeEach(() => {
+      stubESIndex.resetHistory()
+    })
+    afterEach(() => {
+      clock.setSystemTime(date)
+    })
     it("should able to config prefix", async () => {
       await callServer({ ...config, indexPrefix: "prod" })
       stubESIndex.should.be.called
@@ -247,6 +259,47 @@ describe("elasticsearch index creation", () => {
       stubESIndex
         .getCalls()[1]
         .args[0].index.should.be.equal("test_undefined_2019-h1")
+    })
+  })
+
+  describe("call create index", () => {
+    beforeEach(() => {
+      stubESIndex.resetHistory()
+      stubESIndicesExists.resetHistory()
+      stubESIndicesPutMapping.resetHistory()
+      stubESIndicesCreate.resetHistory()
+    })
+    afterEach(() => {
+      clock.setSystemTime(date)
+    })
+    it("it should not call createIndex if it is already created", async () => {
+      const { callAgain } = await callServer(config)
+      await callAgain()
+      await callAgain()
+      await callAgain()
+      await callAgain()
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-h2")
+      stubESIndex.getCalls()[1].args[0].index.should.be.equal("log_2020-h2")
+      stubESIndex.getCalls()[2].args[0].index.should.be.equal("log_2020-h2")
+      stubESIndex.getCalls()[3].args[0].index.should.be.equal("log_2020-h2")
+      stubESIndex.getCalls()[4].args[0].index.should.be.equal("log_2020-h2")
+      stubESIndicesExists.should.be.calledOnce
+      stubESIndicesCreate.should.be.calledOnce
+    })
+    it("it should call send log to correct index name if it has change the date of request", async () => {
+      const { callAgain } = await callServer({ ...config, indexSuffixBy: "m" })
+      await callAgain()
+      await callAgain()
+      clock.setSystemTime(new Date("2019-03-01T23:59:59.999Z"))
+      await callAgain()
+      await callAgain()
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-09")
+      stubESIndex.getCalls()[1].args[0].index.should.be.equal("log_2020-09")
+      stubESIndex.getCalls()[2].args[0].index.should.be.equal("log_2020-09")
+      stubESIndex.getCalls()[3].args[0].index.should.be.equal("log_2019-03")
+      stubESIndex.getCalls()[4].args[0].index.should.be.equal("log_2019-03")
+      stubESIndicesExists.should.be.calledTwice
+      stubESIndicesCreate.should.be.calledTwice
     })
   })
 })
