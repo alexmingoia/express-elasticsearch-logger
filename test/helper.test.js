@@ -4,6 +4,7 @@ const {
   censor,
   indexDateHalfYear,
   indexDateMonth,
+  deepMerge,
   indexDateQuarter,
 } = require("../lib/helper")
 
@@ -281,6 +282,30 @@ describe("indexDate helpers", () => {
       indexDateHalfYear(new Date("2020-10-01T00:00:00.000Z")).should.equal(
         "2020-h2",
       )
+    })
+  })
+})
+
+context("deepMerge", () => {
+  it("should able to merge object in nested but not array", () => {
+    const result = deepMerge(
+      { a: { b: ["green"] }, c: { d: "hi" } },
+      { a: { b: ["sorasak", "srirussamee"] }, c: { e: "hi" } },
+    )
+    result.should.deep.equal({
+      a: { b: ["green"] },
+      c: { e: "hi", d: "hi" },
+    })
+  })
+  it("should able to merge object in nested object and array if true flag is sent as third argument", () => {
+    const result = deepMerge(
+      { a: { b: ["green"] }, c: { d: "hi", f: ["hello", "world"] } },
+      { a: { b: ["sorasak"] }, c: { e: "hi", f: ["world", "thailand"] } },
+      true,
+    )
+    result.should.deep.equal({
+      a: { b: ["green", "sorasak"] },
+      c: { e: "hi", d: "hi", f: ["hello", "world", "thailand"] },
     })
   })
 })

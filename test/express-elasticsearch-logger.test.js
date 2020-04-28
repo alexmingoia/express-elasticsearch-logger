@@ -8,7 +8,7 @@ const {
   errorHandler,
   skipLog,
 } = require("../lib/express-elasticsearch-logger")
-
+const { defaultMapping, defaultWhiteList } = require("../lib/config")
 const express = require("express")
 const request = require("supertest")
 const sinon = require("sinon")
@@ -148,19 +148,22 @@ describe("elasticsearch index creation", () => {
   const config = {
     host: "http://localhost:9200",
   }
-  const getClient = () => ({
+  const getClient = (custom) => ({
     index: stubESIndex,
     indices: {
       exists: stubESIndicesExists,
       putMapping: stubESIndicesPutMapping,
       create: stubESIndicesCreate,
+      ...custom,
     },
   })
-  const callServer = async (cfg = config) => {
+  const callServer = async (cfg = config, client) => {
     const app = express()
-    app.use(requestHandler(cfg, getClient())).get("/test", function (req, res) {
-      res.sendStatus(200)
-    })
+    app
+      .use(requestHandler(cfg, client || getClient()))
+      .get("/test", function (req, res) {
+        res.sendStatus(200)
+      })
     const rq = request(app)
     await rq.get("/test").query({ test: "it" }).expect(200)
     return {
@@ -300,6 +303,168 @@ describe("elasticsearch index creation", () => {
       stubESIndex.getCalls()[4].args[0].index.should.be.equal("log_2019-03")
       stubESIndicesExists.should.be.calledTwice
       stubESIndicesCreate.should.be.calledTwice
+    })
+  })
+
+  describe("merge config", () => {
+    beforeEach(() => {
+      stubESIndex.resetHistory()
+      stubESIndicesExists.resetHistory()
+      stubESIndicesPutMapping.resetHistory()
+      stubESIndicesCreate.resetHistory()
+    })
+    afterEach(() => {
+      clock.setSystemTime(date)
+    })
+    it("it should merge config object/array type if includeDefault is set to true (default)", async () => {
+      const app = express()
+      app
+        .use((req, res, next) => {
+          req.my_name = "green"
+          next()
+        })
+        .use(
+          requestHandler(
+            {
+              ...config,
+              whitelist: {
+                request: ["my_name"],
+              },
+              mapping: {
+                properties: {
+                  request: {
+                    properties: {
+                      my_field: {
+                        type: "text",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            getClient(),
+          ),
+        )
+        .get("/test", function (req, res) {
+          res.sendStatus(200)
+        })
+      const rq = request(app)
+      await rq.get("/test").query({ test: "it" }).expect(200)
+
+      stubESIndicesCreate.should.be.called
+      const {
+        body: { mappings },
+      } = stubESIndicesCreate.getCalls()[0].args[0]
+      mappings.should.be.deep.equal({
+        request: {
+          properties: {
+            ...defaultMapping.properties,
+            request: {
+              properties: {
+                ...defaultMapping.properties.request.properties,
+                my_field: {
+                  type: "text",
+                },
+              },
+            },
+          },
+        },
+      })
+
+      stubESIndex.should.be.called
+      const { body } = stubESIndex.getCalls()[0].args[0]
+      body.request.should.have.property("query").that.deep.equal({ test: "it" })
+      body.request.should.have.property("my_name", "green")
+    })
+
+    it("it should merge config object and replace the array type if includeDefault is set to false", async () => {
+      const app = express()
+      app
+        .use((req, res, next) => {
+          req.my_name = "green"
+          next()
+        })
+        .use(
+          requestHandler(
+            {
+              ...config,
+              includeDefault: false,
+              whitelist: {
+                request: ["my_name"],
+              },
+              mapping: {
+                properties: {
+                  request: {
+                    properties: {
+                      my_field: {
+                        type: "text",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            getClient(),
+          ),
+        )
+        .get("/test", function (req, res) {
+          res.sendStatus(200)
+        })
+      const rq = request(app)
+      await rq.get("/test").query({ test: "it" }).expect(200)
+
+      stubESIndicesCreate.should.be.called
+      const {
+        body: { mappings },
+      } = stubESIndicesCreate.getCalls()[0].args[0]
+      mappings.should.be.deep.equal({
+        request: {
+          properties: {
+            ...defaultMapping.properties,
+            request: {
+              properties: {
+                ...defaultMapping.properties.request.properties,
+                my_field: {
+                  type: "text",
+                },
+              },
+            },
+          },
+        },
+      })
+      stubESIndicesPutMapping.should.not.be.called
+      stubESIndex.should.be.called
+      const { body } = stubESIndex.getCalls()[0].args[0]
+      body.request.should.not.have.property("query")
+      body.request.should.have.property("my_name", "green")
+    })
+  })
+
+  describe("edit mapping if index is exists", () => {
+    beforeEach(() => {
+      stubESIndex.resetHistory()
+      stubESIndicesExists.resetHistory()
+      stubESIndicesPutMapping.resetHistory()
+      stubESIndicesCreate.resetHistory()
+    })
+    afterEach(() => {
+      clock.setSystemTime(date)
+    })
+    it("it should call put mapping instead of create when index is exists", async () => {
+      const stub = sinon.stub().callsArgWith(1, null, true) // make index exists
+      const client = getClient({
+        exists: stub,
+      })
+      const { callAgain } = await callServer(config, client)
+      stubESIndicesCreate.should.not.be.called
+      stubESIndicesPutMapping.should.be.called
+      const putMappingConfig = stubESIndicesPutMapping.getCalls()[0].args[0]
+      putMappingConfig.should.have.property("index", "log_2020-h2")
+      putMappingConfig.should.have.property("type", "request")
+      putMappingConfig.should.have.property("updateAllTypes", true)
+      putMappingConfig.should.have
+        .property("body")
+        .that.deep.equal(defaultMapping)
     })
   })
 })
