@@ -8,9 +8,6 @@ const {
   errorHandler,
   skipLog,
 } = require("../lib/express-elasticsearch-logger")
-// const lib = process.env.JSCOV
-//   ? require("../lib-cov/express-elasticsearch-logger")
-//   : require("../lib/express-elasticsearch-logger")
 
 const express = require("express")
 const request = require("supertest")
@@ -139,6 +136,117 @@ describe("express-elasticsearch-logger module", function () {
       })
 
       request(app).get("/test").expect(200).end(done)
+    })
+  })
+})
+
+describe("elasticsearch index creation", () => {
+  const stubESIndex = sinon.stub().callsArg(1)
+  const stubESIndicesExists = sinon.stub().callsArg(1)
+  const stubESCreate = sinon.stub().callsArg(1)
+  const config = {
+    host: "http://localhost:9200",
+  }
+  const getClient = () => ({
+    index: stubESIndex,
+    indices: {
+      exists: stubESIndicesExists,
+      create: stubESCreate,
+    },
+  })
+  const callServer = async (cfg = config, client) => {
+    const app = express()
+    app
+      .use(requestHandler(cfg, client || getClient()))
+      .get("/test", function (req, res) {
+        res.sendStatus(200)
+      })
+    await request(app).get("/test").query({ test: "it" }).expect(200)
+  }
+  let clock
+  const date = new Date("2020-09-30T23:59:59.999Z")
+  before(() => {
+    clock = sinon.useFakeTimers(date)
+  })
+  afterEach(() => {
+    stubESIndex.resetHistory()
+    stubESIndicesExists.resetHistory()
+    clock.setSystemTime(date)
+  })
+  after(() => {
+    clock.restore()
+  })
+  describe("default index name", () => {
+    it("should create the correct index pattern that default to half year pattern", async () => {
+      await callServer()
+      stubESIndex.should.be.called
+      const { index } = stubESIndex.lastCall.args[0]
+      index.should.be.equal("log_2020-h2")
+    })
+  })
+  describe("configurable index name", () => {
+    it("should able to config prefix", async () => {
+      await callServer({ ...config, indexPrefix: "prod" })
+      stubESIndex.should.be.called
+      const { index } = stubESIndex.lastCall.args[0]
+      index.should.be.equal("prod_2020-h2")
+    })
+    it("should able to suffix of index name by month", async () => {
+      await callServer({ ...config, indexSuffixBy: "m" })
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-09")
+      clock.setSystemTime(new Date("2010-02-01T23:59:59.999Z"))
+      await callServer({ ...config, indexSuffixBy: "month" })
+      stubESIndex.getCalls()[1].args[0].index.should.be.equal("log_2010-02")
+      clock.setSystemTime(new Date("2019-03-01T23:59:59.999Z"))
+      await callServer({
+        ...config,
+        indexPrefix: "test_month",
+        indexSuffixBy: "M",
+      })
+      stubESIndex
+        .getCalls()[2]
+        .args[0].index.should.be.equal("test_month_2019-03")
+    })
+    it("should able to suffix of index name by quartery", async () => {
+      await callServer({ ...config, indexSuffixBy: "q" })
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-q3")
+      clock.setSystemTime(new Date("2010-04-01T23:59:59.999Z"))
+      await callServer({ ...config, indexSuffixBy: "quarter" })
+      stubESIndex.getCalls()[1].args[0].index.should.be.equal("log_2010-q2")
+      clock.setSystemTime(new Date("2019-03-01T23:59:59.999Z"))
+      await callServer({
+        ...config,
+        indexPrefix: "test_q",
+        indexSuffixBy: "Q",
+      })
+      stubESIndex.getCalls()[2].args[0].index.should.be.equal("test_q_2019-q1")
+    })
+    it("should able to suffix of index name by bi-annually", async () => {
+      await callServer({ ...config, indexSuffixBy: "h" })
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-h2")
+      clock.setSystemTime(new Date("2010-04-01T23:59:59.999Z"))
+      await callServer({ ...config, indexSuffixBy: "halfYear" })
+      stubESIndex.getCalls()[1].args[0].index.should.be.equal("log_2010-h1")
+      clock.setSystemTime(new Date("2019-03-01T23:59:59.999Z"))
+      await callServer({
+        ...config,
+        indexPrefix: "test_h",
+        indexSuffixBy: "H",
+      })
+      stubESIndex.getCalls()[2].args[0].index.should.be.equal("test_h_2019-h1")
+    })
+    it("should use default to bi-annually when invalid value is sent", async () => {
+      await callServer({ ...config, indexSuffixBy: "mmmmm" })
+      stubESIndex.getCalls()[0].args[0].index.should.be.equal("log_2020-h2")
+      clock.setSystemTime(new Date("2019-03-01T23:59:59.999Z"))
+      await callServer({
+        ...config,
+        indexPrefix: "test_undefined",
+        indexSuffixBy: undefined,
+      })
+      stubESIndex
+        .getCalls()[1]
+        .args[0].index.should.be.equal("test_undefined_2019-h1")
     })
   })
 })
