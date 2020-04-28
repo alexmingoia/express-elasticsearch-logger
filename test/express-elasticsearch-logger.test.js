@@ -8,7 +8,7 @@ const {
   errorHandler,
   skipLog,
 } = require("../lib/express-elasticsearch-logger")
-const { defaultMapping, defaultWhiteList } = require("../lib/config")
+const { defaultMapping } = require("../lib/config")
 const express = require("express")
 const request = require("supertest")
 const sinon = require("sinon")
