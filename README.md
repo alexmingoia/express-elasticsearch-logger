@@ -13,7 +13,7 @@ npm install @rentspree/express-elasticsearch-logger
 ## API Reference
 <a name="module_express-elasticsearch-logger"></a>
 
-## express-elasticsearch-logger
+## @rentspree/express-elasticsearch-logger
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
     * [.doc](#module_express-elasticsearch-logger.doc) : <code>Object</code>
@@ -69,7 +69,7 @@ handler middleware.
 | --- | --- | --- | --- |
 | config | <code>Object</code> |  | elasticsearch configuration |
 | [config.host] | <code>String</code> | <code>&quot;http://localhost:9200&quot;</code> | elasticsearch host to connect |
-| [config.index] | <code>String</code> | <code>&quot;log_[YYYY]-h[1|2]&quot;</code> | elasticsearch index (default: log_YYYY-h1 or log_YYYY-h2 bi-annually) |
+| [config.index] | <code>String</code> | <code>&quot;log_[YYYY]-h[1\|2]&quot;</code> | elasticsearch index (default: log_YYYY-h1 or log_YYYY-h2 as bi-annually) |
 | config.whitelist | <code>Object</code> |  |  |
 | [config.whitelist.request] | <code>Array.&lt;String&gt;</code> | <code>[&quot;userId&quot;,&quot;body&quot;,&quot;email&quot;,&quot;httpVersion&quot;,&quot;headers&quot;,&quot;method&quot;,&quot;originalUrl&quot;,&quot;path&quot;,&quot;query&quot;]</code> | request properties to log |
 | [config.whitelist.response] | <code>Array.&lt;String&gt;</code> | <code>[&quot;statusCode&quot;, &quot;sent&quot;, &quot;took&quot;]</code> | response properties to log |
@@ -77,8 +77,8 @@ handler middleware.
 | [config.includeDefault] | <code>Boolean</code> | <code>true</code> | include default whitelist and censor the the given config |
 | [config.indexPrefix] | <code>String</code> | <code>&quot;log&quot;</code> | elasticsearch index prefix for running index |
 | [config.indexSuffixBy] | <code>String</code> | <code>&quot;halfYear&quot;</code> | elasticsearch index suffix for running index, one of m M <Monthly> q Q <Quarterly> h H <Bi-annually> |
-| [config.indexSettings] | <code>Object</code> |  | settings in the mapping to be created |
-| [client] | <code>elasticsearch.Client</code> |  | @elastic/elasticsearch client to be injected |
+| [config.indexSettings] | <code>Object</code> | <pre>{</br>index: {</br>    number_of_shards: "3",</br>    number_of_replicas: "2",</br>    refresh_interval: "60s",</br>    analysis: {</br>      normalizer: {</br>        lowercase: {</br>          type: "custom",</br>          char_filter: [],</br>          filter: ["lowercase"],</br>        },</br>      },</br>    },</br>  },</br>}</pre> | settings in the mapping to be created |
+| [client] | <code>elasticsearch.Client</code> |   | @elastic/elasticsearch client to be injected |
 
 **Example**  
 ```javascript
