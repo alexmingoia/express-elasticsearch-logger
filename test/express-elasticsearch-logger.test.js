@@ -89,7 +89,7 @@ describe("express-elasticsearch-logger module", function () {
         index: indexFunctionStub,
         indices: {
           exists(a, cb) {
-            cb()
+            cb(null, { body: false })
           },
           create(a, cb) {
             cb()
@@ -142,7 +142,9 @@ describe("express-elasticsearch-logger module", function () {
 
 describe("elasticsearch index creation", () => {
   const stubESIndex = sinon.stub().callsArg(1)
-  const stubESIndicesExists = sinon.stub().callsArg(1)
+  const stubESIndicesExists = sinon
+    .stub()
+    .callsArgWith(1, null, { body: false })
   const stubESIndicesCreate = sinon.stub().callsArg(1)
   const stubESIndicesPutMapping = sinon.stub().callsArg(1)
   const config = {
@@ -356,6 +358,7 @@ describe("elasticsearch index creation", () => {
         body: { mappings },
       } = stubESIndicesCreate.getCalls()[0].args[0]
       mappings.should.be.deep.equal({
+        ...defaultMapping,
         properties: {
           ...defaultMapping.properties,
           request: {
@@ -416,6 +419,7 @@ describe("elasticsearch index creation", () => {
         body: { mappings },
       } = stubESIndicesCreate.getCalls()[0].args[0]
       mappings.should.be.deep.equal({
+        ...defaultMapping,
         properties: {
           ...defaultMapping.properties,
           request: {
@@ -447,7 +451,7 @@ describe("elasticsearch index creation", () => {
       clock.setSystemTime(date)
     })
     it("it should call put mapping instead of create when index is exists", async () => {
-      const stub = sinon.stub().callsArgWith(1, null, true) // make index exists
+      const stub = sinon.stub().callsArgWith(1, null, { body: true }) // make index exists
       const client = getClient({
         exists: stub,
       })
