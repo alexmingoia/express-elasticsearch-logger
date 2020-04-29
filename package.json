@@ -46,8 +46,8 @@
     "start-express": "{lib,express}/*.js"
   },
   "dependencies": {
-    "clone-deep": "^0.2.4",
-    "elasticsearch": "^15.1.1"
+    "@elastic/elasticsearch": "^7.6.1",
+    "clone-deep": "^0.2.4"
   },
   "devDependencies": {
     "chai": "^4.2.0",
