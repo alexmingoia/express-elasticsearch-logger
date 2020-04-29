@@ -76,7 +76,7 @@ handler middleware.
 | [config.censor] | <code>Array.&lt;String&gt;</code> | <code>[&quot;password&quot;]</code> | list of request body properties to censor |
 | [config.includeDefault] | <code>Boolean</code> | <code>true</code> | include default whitelist and censor the the given config |
 | [config.indexPrefix] | <code>String</code> | <code>&quot;log&quot;</code> | elasticsearch index prefix for running index |
-| [config.indexSuffixBy] | <code>String</code> | <code>&quot;halfYear&quot;</code> | elasticsearch index suffix for running index, one of m M <Monthly> q Q <Quarterly> h H <Bi-annually> |
+| [config.indexSuffixBy] | <code>String</code> | <code>&quot;halfYear&quot;</code> | elasticsearch index suffix for running index, one of m M month (Monthly) q Q quarter (Quarterly) h H halfYear (Bi-annually) |
 | [config.indexSettings] | <code>Object</code> | <pre>{</br>index: {</br>    number_of_shards: "3",</br>    number_of_replicas: "2",</br>    refresh_interval: "60s",</br>    analysis: {</br>      normalizer: {</br>        lowercase: {</br>          type: "custom",</br>          char_filter: [],</br>          filter: ["lowercase"],</br>        },</br>      },</br>    },</br>  },</br>}</pre> | settings in the mapping to be created |
 | [client] | <code>elasticsearch.Client</code> |   | @elastic/elasticsearch client to be injected |
 
