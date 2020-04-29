@@ -11,120 +11,126 @@ npm install @rentspree/express-elasticsearch-logger
 ```
 
 ## API Reference
+<a name="module_express-elasticsearch-logger"></a>
 
-### Configuration
-```javascript
-const {requestHandler} = require('@rentspree/express-elasticsearch-logger')
-app.use(
-  requestHandler({
-    host:'http://localhost:9200',
-    index: undefined, //use prefix and suffix instead fixing the index name
-    whitelist:{
-      request:['user'],
-      response:['my_response'],
-    },
-    censor:['password'],
-    includeDefault:true, // for whitelist and censor, include the predefined value or not
-    // below example will make index name 'service_log_q3'
-    indexPrefix :'service_log',
-    indexSuffixBy :'quarter', //available are monthly('m','M','month'), quarterly('q','Q','quarter') and bi-annually('h','H','halfYear')
-    indexSettings:{ // custom setting for index creating
-      index:{
-        refresh_interval:'20s'
-      }
-    }
-  })
-)
-```
-
-**Members**
+## express-elasticsearch-logger
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
-  * [logger.request](#module_express-elasticsearch-logger.request)
-  * [logger.requestHandler(config, [client])](#module_express-elasticsearch-logger.requestHandler)
-  * [logger.errorHandler(err, req, res, next)](#module_express-elasticsearch-logger.errorHandler)
+    * [.doc](#module_express-elasticsearch-logger.doc) : <code>Object</code>
+    * [.requestHandler(config, [client])](#module_express-elasticsearch-logger.requestHandler) ⇒ <code>elasticsearchLoggerMiddleware</code>
+    * [.errorHandler(err, req, res, next)](#module_express-elasticsearch-logger.errorHandler)
+    * [.skipLog(req, res, next)](#module_express-elasticsearch-logger.skipLog)
 
-<a name="module_express-elasticsearch-logger.request"></a>
-##logger.request
+<a name="module_express-elasticsearch-logger.doc"></a>
+
+### express-elasticsearch-logger.doc : <code>Object</code>
 Document indexed with ElasticSearch. `request` and `response` properties
 are included if they are whitelisted by `config.whitelist`.
 
+**Kind**: static constant of [<code>express-elasticsearch-logger</code>](#module_express-elasticsearch-logger)  
 **Properties**
 
-- env `String` - defaults to "development"  
-- error `Error` - error object passed to `next()`  
-- duration `Number` - milliseconds between request and response  
-- request `Object`  
-  - request.httpVersion `String`  
-  - request.headers `Object`  
-  - request.method `String`  
-  - request.originalUrl `String`  
-  - request.route.path `String`  
-  - request.path `String`  
-  - request.query `Object`  
-- response `Object`  
-  - response.statusCode `Number`  
-- os `Object`  
-  - os.totalmem `Number` - OS total memory in bytes  
-  - os.freemem `Number` - OS free memory in bytes  
-  - os.loadavg `Array.<Number>` - Array of 5, 10, and 15 min averages  
-- process `Object`  
-  - process.memoryUsage `Number` - process memory in bytes  
-- @timestamp `String` - ISO time of request  
+| Name | Type | Description |
+| --- | --- | --- |
+| env | <code>String</code> | defaults to "development" |
+| [error] | <code>Error</code> | error object passed to `next()` |
+| duration | <code>Number</code> | milliseconds between request and response |
+| request | <code>Object</code> | requst object detail of express |
+| request.httpVersion | <code>String</code> |  |
+| request.headers | <code>Object</code> |  |
+| request.method | <code>String</code> |  |
+| request.originalUrl | <code>String</code> |  |
+| request.route.path | <code>String</code> |  |
+| request.path | <code>String</code> |  |
+| request.query | <code>Object</code> |  |
+| response | <code>Object</code> |  |
+| response.statusCode | <code>Number</code> |  |
+| os | <code>Object</code> |  |
+| os.totalmem | <code>Number</code> | OS total memory in bytes |
+| os.freemem | <code>Number</code> | OS free memory in bytes |
+| os.loadavg | <code>Array.&lt;Number&gt;</code> | Array of 5, 10, and 15 min averages |
+| process | <code>Object</code> |  |
+| process.memoryUsage | <code>Number</code> | process memory in bytes |
+| @timestamp | <code>String</code> | ISO time of request |
 
-**Type**: `Object`  
 <a name="module_express-elasticsearch-logger.requestHandler"></a>
-##logger.requestHandler(config, [client])
+
+### express-elasticsearch-logger.requestHandler(config, [client]) ⇒ <code>elasticsearchLoggerMiddleware</code>
 Returns Express middleware configured according to given `options`.
 
 Middleware must be mounted before all other middleware to ensure accurate
 capture of requests. The error handler must be mounted before other error
 handler middleware.
 
-**Params**
+**Kind**: static method of [<code>express-elasticsearch-logger</code>](#module_express-elasticsearch-logger)  
+**Returns**: <code>elasticsearchLoggerMiddleware</code> - express middleware  
 
-- config `Object` - elasticsearch configuration  
-  - \[index\] `String` - elasticsearch index (default: log_YEAR_MONTH)  
-  - \[type\] `String` - elasticsearch request type (default: request)  
-  - whitelist `Object`  
-    - request `Array.<String>` - request properties to log  
-    - response `Array.<String>` - response properties to log  
-  - censor `Array.<String>` - list of request body properties to censor, this config will deep censor your data. for example, if you input `'data.deepdata'`, your property `deepdata` inside `data` object will be marked as **CENSORED**
-- \[client\] `elasticsearch.Client` - elasticsearch client  
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| config | <code>Object</code> |  | elasticsearch configuration |
+| [config.host] | <code>String</code> | <code>&quot;http://localhost:9200&quot;</code> | elasticsearch host to connect |
+| [config.index] | <code>String</code> | <code>&quot;log_[YYYY]-h[1|2]&quot;</code> | elasticsearch index (default: log_YYYY-h1 or log_YYYY-h2 bi-annually) |
+| config.whitelist | <code>Object</code> |  |  |
+| [config.whitelist.request] | <code>Array.&lt;String&gt;</code> | <code>[&quot;userId&quot;,&quot;body&quot;,&quot;email&quot;,&quot;httpVersion&quot;,&quot;headers&quot;,&quot;method&quot;,&quot;originalUrl&quot;,&quot;path&quot;,&quot;query&quot;]</code> | request properties to log |
+| [config.whitelist.response] | <code>Array.&lt;String&gt;</code> | <code>[&quot;statusCode&quot;, &quot;sent&quot;, &quot;took&quot;]</code> | response properties to log |
+| [config.censor] | <code>Array.&lt;String&gt;</code> | <code>[&quot;password&quot;]</code> | list of request body properties to censor |
+| [config.includeDefault] | <code>Boolean</code> | <code>true</code> | include default whitelist and censor the the given config |
+| [config.indexPrefix] | <code>String</code> | <code>&quot;log&quot;</code> | elasticsearch index prefix for running index |
+| [config.indexSuffixBy] | <code>String</code> | <code>&quot;halfYear&quot;</code> | elasticsearch index suffix for running index, one of m M <Monthly> q Q <Quarterly> h H <Bi-annually> |
+| [config.indexSettings] | <code>Object</code> |  | settings in the mapping to be created |
+| [client] | <code>elasticsearch.Client</code> |  | @elastic/elasticsearch client to be injected |
 
-**Returns**: `elasticsearchLoggerMiddleware` - express middleware  
 **Example**  
 ```javascript
-var express = require('express');
-var logger = require('express-elasticsearch-logger');
+const express = require('express');
+const logger = require('express-elasticsearch-logger');
 
-var app = express();
+const app = express();
 
 app
   .use(logger.requestHandler({
     host: 'http://localhost:9200'
-  }))
+  })
   .get('/', function (req, res, next) {
     res.sendStatus(204);
   })
-  .use(logger.errorHandler)
-  .listen(8888);
+  .use(logger.errorHandler);
 ```
 
+* [.requestHandler(config, [client])](#module_express-elasticsearch-logger.requestHandler) ⇒ <code>elasticsearchLoggerMiddleware</code>
 <a name="module_express-elasticsearch-logger.errorHandler"></a>
-##logger.errorHandler(err, req, res, next)
+
+### express-elasticsearch-logger.errorHandler(err, req, res, next)
 Error handler middleware exposes error to `Response#end`
 
 This middleware is used in combination with
 [requestHandler](#module_express-elasticsearch-logger.requestHandler) to capture request
 errors.
 
-**Params**
+**Kind**: static method of [<code>express-elasticsearch-logger</code>](#module_express-elasticsearch-logger)  
 
-- err `Error`  
-- req `express.Request`  
-- res `express.Response`  
-- next `express.Request.next`  
+| Param | Type |
+| --- | --- |
+| err | <code>Error</code> | 
+| req | <code>express.Request</code> | 
+| res | <code>express.Response</code> | 
+| next | <code>express.Request.next</code> | 
+
+<a name="module_express-elasticsearch-logger.skipLog"></a>
+
+### express-elasticsearch-logger.skipLog(req, res, next)
+This middleware will mark for skip log
+use this middleware for endpoint that is called too often and did not need to log
+like healthcheck
+
+**Kind**: static method of [<code>express-elasticsearch-logger</code>](#module_express-elasticsearch-logger)  
+
+| Param | Type |
+| --- | --- |
+| req | <code>express.Request</code> | 
+| res | <code>express.Response</code> | 
+| next | <code>express.Request.next</code> | 
+
 
 ## Contributing
 
