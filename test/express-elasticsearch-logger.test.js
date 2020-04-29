@@ -38,7 +38,7 @@ describe("express-elasticsearch-logger module", function () {
     },
     indices: {
       exists(a, cb) {
-        cb()
+        cb(null, { body: false })
       },
       create(a, cb) {
         cb()
