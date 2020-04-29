@@ -12,6 +12,31 @@ npm install @rentspree/express-elasticsearch-logger
 
 ## API Reference
 
+### Configuration
+```javascript
+const {requestHandler} = require('@rentspree/express-elasticsearch-logger')
+app.use(
+  requestHandler({
+    host:'http://localhost:9200',
+    index: undefined, //use prefix and suffix instead fixing the index name
+    whitelist:{
+      request:['user'],
+      response:['my_response'],
+    },
+    censor:['password'],
+    includeDefault:true, // for whitelist and censor, include the predefined value or not
+    // below example will make index name 'service_log_q3'
+    indexPrefix :'service_log',
+    indexSuffixBy :'quarter', //available are monthly('m','M','month'), quarterly('q','Q','quarter') and bi-annually('h','H','halfYear')
+    indexSettings:{ // custom setting for index creating
+      index:{
+        refresh_interval:'20s'
+      }
+    }
+  })
+)
+```
+
 **Members**
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
@@ -105,13 +130,9 @@ errors.
 
 Please submit all issues and pull requests to the [alexmingoia/express-elasticsearch-logger](http://github.com/alexmingoia/express-elasticsearch-logger) repository!
 
-## Tasks
-
-List available tasks with `gulp help`.
-
 ## Tests
 
-Run tests using `npm test` or `gulp test`.
+Run tests using `npm test`.
 
 ## Support
 
