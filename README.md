@@ -7,13 +7,13 @@
 Install using [npm](https://www.npmjs.org/):
 
 ```sh
-npm install @rentspree/express-elasticsearch-logger
+npm install express-elasticsearch-logger
 ```
 
 ## API Reference
 <a name="module_express-elasticsearch-logger"></a>
 
-## @rentspree/express-elasticsearch-logger
+## express-elasticsearch-logger
 
 * [express-elasticsearch-logger](#module_express-elasticsearch-logger)
     * [.doc](#module_express-elasticsearch-logger.doc) : <code>Object</code>
